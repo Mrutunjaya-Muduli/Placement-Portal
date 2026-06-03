@@ -15,6 +15,11 @@ class Command(BaseCommand):
         RecruiterProfile.objects.all().delete()
         User.objects.exclude(is_superuser=True).delete()
 
+        # Create Superuser if not exists
+        if not User.objects.filter(is_superuser=True).exists():
+            User.objects.create_superuser('admin', 'admin@placementportal.edu', 'admin123')
+            self.stdout.write(self.style.SUCCESS("Created Superuser: 'admin' (Password: admin123)"))
+
         self.stdout.write(self.style.SUCCESS("Database cleared! Seeding new mock data..."))
 
         # 1. Create Recruiter / Company accounts

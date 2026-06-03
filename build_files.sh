@@ -7,3 +7,6 @@ python3 manage.py collectstatic --noinput --clear
 
 # Run migrations
 python3 manage.py migrate --noinput
+
+# Seed mock data
+python3 manage.py seed_data
