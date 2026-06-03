@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center my-4 py-2">
+    <div class="col-md-7">
+        <div class="card shadow-lg">
+            <div class="card-body p-4 p-sm-5">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold mb-1">Edit Student Profile</h3>
+                    <p class="text-muted small">Update your personal, contact, and academic credentials here.</p>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Personal Details Section -->
+                    <h5 class="mb-3 fw-semibold text-primary border-bottom pb-2" style="border-color: rgba(255, 255, 255, 0.05) !important;">
+                        👤 Personal Details
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="John Doe" value="{{ profile.user.first_name }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" placeholder="john@university.edu" value="{{ profile.user.email }}" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Academic Details Section -->
+                    <h5 class="mt-4 mb-3 fw-semibold text-primary border-bottom pb-2" style="border-color: rgba(255, 255, 255, 0.05) !important;">
+                        🎓 Academic Record
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Student ID / Roll No</label>
+                            <input type="text" name="student_id" class="form-control" placeholder="ST2026099" value="{{ profile.student_id }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Branch / Department</label>
+                            <select name="branch" class="form-select" required>
+                                <option value="">Select Branch</option>
+                                <option value="Computer Science & Engineering" {% if profile.branch == 'Computer Science & Engineering' %}selected{% endif %}>Computer Science & Engineering</option>
+                                <option value="Information Technology" {% if profile.branch == 'Information Technology' %}selected{% endif %}>Information Technology</option>
+                                <option value="Electronics & Communication" {% if profile.branch == 'Electronics & Communication' %}selected{% endif %}>Electronics & Communication</option>
+                                <option value="Mechanical Engineering" {% if profile.branch == 'Mechanical Engineering' %}selected{% endif %}>Mechanical Engineering</option>
+                                <option value="Civil Engineering" {% if profile.branch == 'Civil Engineering' %}selected{% endif %}>Civil Engineering</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Current CGPA</label>
+                            <input type="number" step="0.01" name="cgpa" class="form-control" max="10" min="0" placeholder="e.g. 8.50" value="{{ profile.cgpa }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Skills (Comma separated)</label>
+                            <input type="text" name="skills" class="form-control" placeholder="e.g. Python, SQL, React" value="{{ profile.skills }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Update Resume (PDF format)</label>
+                        <input type="file" name="resume" class="form-control" accept=".pdf">
+                        {% if profile.resume %}
+                            <span class="text-muted small d-block mt-2" style="font-size: 0.72rem;">
+                                📄 Current File: <a href="{{ profile.resume.url }}" target="_blank" class="text-primary fw-semibold text-decoration-none">{{ profile.resume.name }}</a>
+                            </span>
+                        {% else %}
+                            <span class="text-muted small d-block mt-1" style="font-size: 0.72rem;">* No resume file uploaded yet. PDF is recommended.</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex flex-column gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary w-100 py-2.5 fs-6">Save Changes</button>
+                        <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary w-100 py-2.5">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

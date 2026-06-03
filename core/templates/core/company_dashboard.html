@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row mt-4 mb-4 align-items-center">
+    <div class="col d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold mb-1">Company Dashboard</h3>
+            <p class="text-muted mb-0">Manage placement drives, configure requirements, and evaluate candidates.</p>
+        </div>
+        <a href="{% url 'post_job' %}" class="btn btn-primary">+ Post Placement Drive</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-lg">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Active Placement Drives</h5>
+                <span class="badge bg-white bg-opacity-5 border border-secondary text-muted">{{ jobs.count }} Total Posted</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle table-responsive-stack">
+                        <thead>
+                            <tr>
+                                <th>Job Role</th>
+                                <th>Company</th>
+                                <th>Package Offered</th>
+                                <th>Posted Date</th>
+                                <th class="text-end">Recruitment Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in jobs %}
+                            <tr>
+                                <td data-label="Job Role">
+                                    <strong class="text-light">{{ job.job_role }}</strong>
+                                </td>
+                                <td data-label="Company">
+                                    <span class="text-muted-light">{{ job.company_name }}</span>
+                                </td>
+                                <td data-label="Package Offered">
+                                    <span class="badge badge-package">{{ job.package }}</span>
+                                </td>
+                                <td data-label="Posted Date">
+                                    <span class="text-muted small">{{ job.created_at|date:"M d, Y" }}</span>
+                                </td>
+                                <td data-label="Recruitment Actions" class="text-end">
+                                    <a href="{% url 'view_candidates' job.id %}" class="btn btn-sm btn-outline-primary px-3">
+                                        View Candidates
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <p class="mb-0">No active job drives posted yet. Create one to start receiving applications!</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

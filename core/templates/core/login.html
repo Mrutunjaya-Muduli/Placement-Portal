@@ -1,0 +1,95 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5 py-4">
+    <div class="col-md-5">
+        <div class="card shadow-lg">
+            <div class="card-body p-4 p-sm-5">
+                <!-- Unified Header Icon -->
+                <div class="text-center mb-4">
+                    <div class="login-header-icon">🔑</div>
+                    <h3 class="mb-1 fw-bold">Portal Sign In</h3>
+                    <p class="text-muted small">Select your role and authenticate into your workspace.</p>
+                </div>
+
+                <!-- Unified Role Tags (Interactive Selection Toggles) -->
+                <div class="role-badge-container mb-2">
+                    <span class="role-tag student active">⚡ Student</span>
+                    <span class="role-tag company">🏢 Company</span>
+                    <span class="role-tag admin">🛡️ Admin</span>
+                </div>
+                <p id="role-desc" class="text-muted small text-center mb-4" style="font-size: 0.8rem; min-height: 24px;">
+                    Sign in as a Student to explore active placement drives.
+                </p>
+
+                <!-- Login Form -->
+                <form method="POST">
+                    {% csrf_token %}
+                    <!-- Hidden role input -->
+                    <input type="hidden" name="role" id="role-input" value="student">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" placeholder="Enter your username" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 py-2.5 fs-6 mb-3">Sign In</button>
+                </form>
+
+                <!-- Helper Routing Notice -->
+                <div class="bg-white bg-opacity-5 p-3 rounded-3 mb-3 text-center border" style="border-color: rgba(255, 255, 255, 0.05) !important;">
+                    <p class="text-muted small mb-0" style="font-size: 0.78rem; line-height: 1.45;">
+                        🛡️ <strong>Role Verification Active:</strong> You will only be logged in if your credentials match your chosen role. Unmatched credentials will be denied.
+                    </p>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="text-center mt-4">
+                    <small class="text-muted">New student? <a href="{% url 'register' %}" class="text-primary fw-semibold text-decoration-none">Register here</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Role Selector Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleTags = document.querySelectorAll('.role-tag');
+        const roleInput = document.getElementById('role-input');
+        const roleDesc = document.getElementById('role-desc');
+        
+        const descriptions = {
+            student: "Sign in as a Student to explore active placement drives.",
+            company: "Sign in as a Recruiter / Company to post drives & screen applicants.",
+            admin: "Sign in as an Administrator to manage database records."
+        };
+        
+        roleTags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                // Remove active class from all tags
+                roleTags.forEach(t => t.classList.remove('active'));
+                
+                // Add active class to clicked tag
+                this.classList.add('active');
+                
+                // Get role name
+                let selectedRole = 'student';
+                if (this.classList.contains('company')) {
+                    selectedRole = 'company';
+                } else if (this.classList.contains('admin')) {
+                    selectedRole = 'admin';
+                }
+                
+                // Update hidden input and description
+                roleInput.value = selectedRole;
+                roleDesc.textContent = descriptions[selectedRole];
+            });
+        });
+    });
+</script>
+{% endblock %}

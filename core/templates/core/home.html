@@ -1,0 +1,432 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row align-items-center my-5 py-4">
+    <!-- Hero Text -->
+    <div class="col-lg-6 mb-5 mb-lg-0">
+        <h1 class="display-4 fw-bold mb-3" style="line-height: 1.15; letter-spacing: -0.04em;">
+            Your Career Gateway <br>
+            <span style="background: linear-gradient(135deg, var(--accent-secondary) 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Starts Here.</span>
+        </h1>
+        <p class="lead mt-3 mb-4" style="color: var(--text-muted); font-size: 1.15rem; line-height: 1.6;">
+            Connect with top-tier global companies, apply for exclusive placement drives, and track your recruitment timeline in a unified, gorgeous digital workspace.
+        </p>
+
+        <!-- 🔍 Quick Job Finder Bar -->
+        <form method="GET" action="{% url 'job_list' %}" class="input-group mb-4 shadow-sm home-search-bar" style="max-width: 500px;">
+            <span class="input-group-text bg-transparent border-0 text-muted ps-3">🔍</span>
+            <input type="text" name="search" class="form-control bg-transparent border-0 py-3 text-light" placeholder="Search active roles, skills, or companies..." style="font-size: 0.95rem; box-shadow: none;">
+            <button class="btn btn-primary px-4 fw-semibold" type="submit" style="border-radius: 0 12px 12px 0;">Find Drives</button>
+        </form>
+
+        <div class="d-flex flex-wrap gap-3 mt-4">
+            {% if not user.is_authenticated %}
+                <!-- Unified Registration Dropdown Button -->
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-primary btn-lg dropdown-toggle px-4 py-3 fs-6" type="button" id="registerDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 10px;">
+                        🚀 Create Account
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark shadow border-0" aria-labelledby="registerDropdown" style="background: #0d0825; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 12px; backdrop-filter: blur(14px);">
+                        <li>
+                            <a class="dropdown-item py-2.5 px-3 fw-semibold small text-light" href="{% url 'register' %}" style="border-radius: 8px 8px 0 0; transition: all 0.25s ease;">
+                                🎓 Register as Student
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item py-2.5 px-3 fw-semibold small text-light" href="{% url 'register_recruiter' %}" style="border-radius: 0 0 8px 8px; transition: all 0.25s ease;">
+                                🏢 Register as Recruiter
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg px-4 py-3 fs-6">
+                    Unified Login Portal
+                </a>
+            {% else %}
+                {% if user.studentprofile %}
+                    <a href="{% url 'student_dashboard' %}" class="btn btn-primary btn-lg px-4 py-3 fs-6">
+                        Enter Student Dashboard
+                    </a>
+                {% else %}
+                    <a href="{% url 'company_dashboard' %}" class="btn btn-primary btn-lg px-4 py-3 fs-6">
+                        Recruiter Dashboard
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Hero Visual Asset -->
+    <div class="col-lg-6 text-center">
+        <div class="position-relative d-inline-block">
+            <!-- Subtle Background Soft Glow underneath image -->
+            <div class="position-absolute" style="width: 80%; height: 80%; background: rgba(6, 182, 212, 0.15); filter: blur(60px); top: 10%; left: 10%; z-index: -1; border-radius: 50%;"></div>
+            
+            <img src="{% static 'core/images/hero.png' %}" 
+                 alt="Placement Portal Career Illustration" 
+                 class="img-fluid rounded-4 shadow-lg" 
+                 style="max-width: 90%; border: 1px solid rgba(255, 255, 255, 0.08); transition: transform 0.5s ease;"
+                 onmouseover="this.style.transform='scale(1.02) rotate(0.5deg)'"
+                 onmouseout="this.style.transform='scale(1) rotate(0deg)'">
+        </div>
+    </div>
+</div>
+
+<!-- 🏢 Partner Recruiter Marquee Slider -->
+<div class="my-5 py-4">
+    <h5 class="text-center text-uppercase tracking-wider fw-bold mb-4" style="color: var(--text-muted); font-size: 0.8rem; letter-spacing: 0.2em;">
+        Empowering Careers At Global Organizations
+    </h5>
+    <div class="marquee-slider">
+        <div class="marquee-track">
+            {% for company in companies %}
+            <div class="marquee-item">
+                <span class="company-logo-initial me-2" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">✦</span>
+                {{ company }}
+            </div>
+            {% endfor %}
+            {% for company in companies %}
+            <div class="marquee-item">
+                <span class="company-logo-initial me-2" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">✦</span>
+                {{ company }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- 📊 Platform Highlights & Live Stats -->
+<div class="row g-4 my-5 justify-content-center">
+    <div class="col-6 col-md-3">
+        <div class="card homepage-stats-card text-center h-100 py-3" style="border-top: 4px solid var(--accent-secondary) !important;">
+            <div class="card-body">
+                <h2 class="display-6 fw-bold mb-1" style="background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    {{ total_students }}
+                </h2>
+                <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Registered Students</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card homepage-stats-card text-center h-100 py-3" style="border-top: 4px solid var(--accent-primary) !important;">
+            <div class="card-body">
+                <h2 class="display-6 fw-bold mb-1" style="background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    {{ total_recruiters }}
+                </h2>
+                <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Partner Employers</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card homepage-stats-card text-center h-100 py-3" style="border-top: 4px solid var(--accent-secondary) !important;">
+            <div class="card-body">
+                <h2 class="display-6 fw-bold mb-1" style="background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    {{ active_drives }}
+                </h2>
+                <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Active Job Drives</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card homepage-stats-card text-center h-100 py-3" style="border-top: 4px solid var(--accent-primary) !important;">
+            <div class="card-body">
+                <h2 class="display-6 fw-bold mb-1" style="background: linear-gradient(135deg, var(--text-primary) 30%, #10b981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    {{ placed_students }}
+                </h2>
+                <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Successful Offers</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🏁 Workflow Showcase ("How it Works") -->
+<div class="my-5 py-4">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold mb-2">Platform Walkthrough</h2>
+        <p class="text-muted">A unified recruitment gateway engineered for students and hiring managers.</p>
+    </div>
+    <div class="row g-4">
+        <!-- Student Pipeline -->
+        <div class="col-md-6">
+            <div class="p-4 rounded-4" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04);">
+                <h4 class="fw-bold mb-4 text-center" style="color: var(--accent-secondary) !important;">🎓 Student Path</h4>
+                <div class="d-flex flex-column gap-3">
+                    <a href="{% if user.is_authenticated %}{% url 'edit_profile' %}{% else %}{% url 'login' %}{% endif %}" class="workflow-step-card p-3 text-decoration-none d-block">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="step-number-badge">1</span>
+                            <div>
+                                <h6 class="fw-bold mb-0">Build Professional Profile</h6>
+                                <small class="text-muted">Set up details, add key skillsets, and upload your placement resume.</small>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="{% if user.is_authenticated %}{% url 'job_list' %}{% else %}{% url 'login' %}{% endif %}" class="workflow-step-card p-3 text-decoration-none d-block">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="step-number-badge">2</span>
+                            <div>
+                                <h6 class="fw-bold mb-0">One-Click Application</h6>
+                                <small class="text-muted">Explore active recruiter drives and instantly verify academic eligibility.</small>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="{% if user.is_authenticated %}{% url 'student_dashboard' %}{% else %}{% url 'login' %}{% endif %}" class="workflow-step-card p-3 text-decoration-none d-block">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="step-number-badge">3</span>
+                            <div>
+                                <h6 class="fw-bold mb-0">Visual Timeline Tracking</h6>
+                                <small class="text-muted">Follow application status updates in real-time with glowing progress lines.</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recruiter Pipeline -->
+        <div class="col-md-6">
+            <div class="p-4 rounded-4" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04);">
+                <h4 class="fw-bold mb-4 text-center" style="color: var(--accent-primary) !important;">🏢 Recruiter Path</h4>
+                <div class="d-flex flex-column gap-3">
+                    <a href="{% if user.is_authenticated %}{% url 'company_dashboard' %}{% else %}{% url 'register_recruiter' %}{% endif %}" class="workflow-step-card p-3 text-decoration-none d-block">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="step-number-badge">1</span>
+                            <div>
+                                <h6 class="fw-bold mb-0">Register Organization</h6>
+                                <small class="text-muted">Set up recruiter credentials and corporate company details.</small>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="{% if user.is_authenticated %}{% url 'post_job' %}{% else %}{% url 'login' %}{% endif %}" class="workflow-step-card p-3 text-decoration-none d-block">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="step-number-badge">2</span>
+                            <div>
+                                <h6 class="fw-bold mb-0">Post Recruitment Drives</h6>
+                                <small class="text-muted">Define job roles, salary package packages, CGPA limits, and target branches.</small>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="{% if user.is_authenticated %}{% url 'company_dashboard' %}{% else %}{% url 'login' %}{% endif %}" class="workflow-step-card p-3 text-decoration-none d-block">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="step-number-badge">3</span>
+                            <div>
+                                <h6 class="fw-bold mb-0">Screen & Shortlist</h6>
+                                <small class="text-muted">Review student applications, download resumes, and update recruitment status.</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 📢 Featured Active Placement Drives -->
+<div class="my-5 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">Featured Placement Drives</h2>
+            <p class="text-muted small mb-0">High-growth career opportunities currently active in the portal.</p>
+        </div>
+        <a href="{% url 'job_list' %}" class="btn btn-outline-primary btn-sm px-3">Explore All Drives</a>
+    </div>
+    <div class="row g-4">
+        {% if featured_drives %}
+            {% for job in featured_drives %}
+            <div class="col-md-4">
+                <div class="card featured-job-card p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+                             style="width: 45px; height: 45px; font-size: 20px; border-radius: 10px;
+                                    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+                                    border: 1px solid rgba(255, 255, 255, 0.1);">
+                            {{ job.company_name|slice:":1"|upper }}
+                        </div>
+                        <span class="badge badge-package">{{ job.package }}</span>
+                    </div>
+                    <h5 class="fw-bold text-light mb-1">{{ job.job_role }}</h5>
+                    <span class="text-primary small fw-semibold d-block mb-3">{{ job.company_name }}</span>
+                    <p class="text-muted small mb-4" style="font-size: 0.8rem; line-height: 1.5; min-height: 36px;">
+                        🎯 {{ job.eligibility|truncatechars:70 }}
+                    </p>
+                    <a href="{% url 'job_list' %}?search={{ job.company_name }}" class="btn btn-sm btn-outline-secondary w-100 py-2">View Drive Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Fallback Mock Cards if no drives exist yet in the database -->
+            <div class="col-md-4">
+                <div class="card featured-job-card p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+                             style="width: 45px; height: 45px; font-size: 20px; border-radius: 10px;
+                                    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);">
+                            S
+                        </div>
+                        <span class="badge badge-package">15 LPA</span>
+                    </div>
+                    <h5 class="fw-bold text-light mb-1">Software Engineer</h5>
+                    <span class="text-primary small fw-semibold d-block mb-3">Stripe</span>
+                    <p class="text-muted small mb-4" style="font-size: 0.8rem; line-height: 1.5;">
+                        🎯 Minimum 8.0 CGPA. Open for CSE, IT and ECE branches.
+                    </p>
+                    <a href="{% url 'job_list' %}" class="btn btn-sm btn-outline-secondary w-100 py-2">View Drive Details</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card featured-job-card p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+                             style="width: 45px; height: 45px; font-size: 20px; border-radius: 10px;
+                                    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);">
+                            G
+                        </div>
+                        <span class="badge badge-package">24 LPA</span>
+                    </div>
+                    <h5 class="fw-bold text-light mb-1">Data Scientist Associate</h5>
+                    <span class="text-primary small fw-semibold d-block mb-3">Google</span>
+                    <p class="text-muted small mb-4" style="font-size: 0.8rem; line-height: 1.5;">
+                        🎯 Minimum 8.5 CGPA. Open to all engineering branches.
+                    </p>
+                    <a href="{% url 'job_list' %}" class="btn btn-sm btn-outline-secondary w-100 py-2">View Drive Details</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card featured-job-card p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+                             style="width: 45px; height: 45px; font-size: 20px; border-radius: 10px;
+                                    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);">
+                            M
+                        </div>
+                        <span class="badge badge-package">18 LPA</span>
+                    </div>
+                    <h5 class="fw-bold text-light mb-1">Cloud Solutions Engineer</h5>
+                    <span class="text-primary small fw-semibold d-block mb-3">Microsoft</span>
+                    <p class="text-muted small mb-4" style="font-size: 0.8rem; line-height: 1.5;">
+                        🎯 Minimum 7.5 CGPA. Strong Cloud / Python core skills.
+                    </p>
+                    <a href="{% url 'job_list' %}" class="btn btn-sm btn-outline-secondary w-100 py-2">View Drive Details</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 💬 Student Success Testimonials -->
+<div class="my-5 py-4">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold mb-2">Student Placements Success</h2>
+        <p class="text-muted">Real stories from alumni who secured offers through the Placement Portal.</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card testimonial-card p-4">
+                <div class="mb-3" style="color: #f59e0b;">★★★★★</div>
+                <p class="text-muted small mb-4" style="line-height: 1.6; font-style: italic; min-height: 96px;">
+                    "The visual timeline tracker on the student dashboard is incredible. I was able to track my Stripe application stages in real-time, from review to selection, without any anxiety."
+                </p>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle text-white fw-bold d-inline-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px; background: var(--accent-primary); font-size: 0.95rem;">
+                        AS
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-light" style="font-size: 0.85rem;">Alice Smith</h6>
+                        <small class="text-muted" style="font-size: 0.72rem;">CSE Dept | Placed at Stripe</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card testimonial-card p-4">
+                <div class="mb-3" style="color: #f59e0b;">★★★★★</div>
+                <p class="text-muted small mb-4" style="line-height: 1.6; font-style: italic; min-height: 96px;">
+                    "The one-click eligibility checker saved me so much time. I knew exactly which drives matched my branch and CGPA before submitting my resume."
+                </p>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle text-white fw-bold d-inline-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px; background: var(--accent-secondary); font-size: 0.95rem;">
+                        BJ
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-light" style="font-size: 0.85rem;">Bob Johnson</h6>
+                        <small class="text-muted" style="font-size: 0.72rem;">IT Dept | Placed at Microsoft</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card testimonial-card p-4">
+                <div class="mb-3" style="color: #f59e0b;">★★★★★</div>
+                <p class="text-muted small mb-4" style="line-height: 1.6; font-style: italic; min-height: 96px;">
+                    "The status update email notification system was extremely reliable. I received instant email notifications at every round cleared, all the way to final selection."
+                </p>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle text-white fw-bold d-inline-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px; background: var(--accent-primary); font-size: 0.95rem;">
+                        CD
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-light" style="font-size: 0.85rem;">Charlie Davis</h6>
+                        <small class="text-muted" style="font-size: 0.72rem;">ECE Dept | Placed at Google</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ❓ Frequently Asked Questions (Interactive Accordion) -->
+<div class="my-5 py-4" style="max-width: 800px; margin: 0 auto;">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold mb-2">Frequently Asked Questions</h2>
+        <p class="text-muted">Answers to common inquiries regarding the placement portal workflows.</p>
+    </div>
+    <div class="accordion" id="faqAccordion">
+        <!-- FAQ 1 -->
+        <div class="accordion-item faq-accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed faq-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1">
+                    How do I know if I am eligible for an active recruitment drive?
+                </button>
+            </h2>
+            <div id="faqCollapse1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-muted small" style="line-height: 1.6; border-top: 1px solid var(--border-glass);">
+                    Eligibility is calculated automatically using your registered academic parameters (CGPA and branch department) against the recruiters' criteria. Eligible students can apply with a single click, while ineligible students are shown detailed criteria requirements.
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQ 2 -->
+        <div class="accordion-item faq-accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed faq-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2">
+                    How do I update my placement profile or resume?
+                </button>
+            </h2>
+            <div id="faqCollapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-muted small" style="line-height: 1.6; border-top: 1px solid var(--border-glass);">
+                    Once signed into your student account, click the **"Edit Profile Details"** button on the sidebar. You can instantly update your email, branch, CGPA, technical skills list, and upload an updated PDF copy of your professional resume.
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="accordion-item faq-accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed faq-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3">
+                    Are recruiters notified immediately when I submit an application?
+                </button>
+            </h2>
+            <div id="faqCollapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body text-muted small" style="line-height: 1.6; border-top: 1px solid var(--border-glass);">
+                    Yes! Recruiters receive instant portal updates inside their dedicated corporate recruiter dashboards, allowing them to download resumes, review candidate credentials, and shortlist students.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

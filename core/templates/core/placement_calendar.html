@@ -1,0 +1,393 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row mt-4 mb-4 align-items-center">
+    <div class="col-md-8">
+        <h3 class="fw-bold mb-1">📅 Placement Schedule Calendar</h3>
+        <p class="text-muted mb-0">Track application deadlines, exam schedules, and recruiter drive dates in one unified calendar.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Monthly Grid Calendar Section -->
+    <div class="col-lg-8">
+        <div class="card shadow-lg p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                <div>
+                    <h4 id="calendar-month-year" class="fw-bold mb-0 text-light">Month Year</h4>
+                </div>
+                <div class="d-flex gap-2">
+                    <button id="prev-month-btn" class="btn btn-outline-secondary btn-sm px-3">&lt; Prev</button>
+                    <button id="today-btn" class="btn btn-outline-primary btn-sm px-3">Today</button>
+                    <button id="next-month-btn" class="btn btn-outline-secondary btn-sm px-3">Next &gt;</button>
+                </div>
+            </div>
+
+            <!-- Calendar Days Header -->
+            <div class="calendar-grid-header border-bottom pb-2 mb-2" style="border-color: rgba(255, 255, 255, 0.05) !important;">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+            </div>
+
+            <!-- Calendar Days Grid -->
+            <div id="calendar-days-grid" class="calendar-grid-body">
+                <!-- Days will be inserted dynamically by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Events & Details Sidebar -->
+    <div class="col-lg-4">
+        <!-- Interactive Detail Card -->
+        <div id="event-details-card" class="card shadow-md mb-4 d-none" style="border-left: 4px solid var(--accent-primary) !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <span id="detail-type-badge" class="badge mb-2">Type</span>
+                    <button type="button" id="close-detail-btn" class="btn-close btn-close-white" style="font-size: 0.75rem;"></button>
+                </div>
+                <h5 id="detail-company" class="fw-bold text-primary mb-1">Company Name</h5>
+                <h6 id="detail-role" class="fw-semibold text-light mb-3">Job Role</h6>
+                
+                <ul class="list-unstyled mb-4 small text-muted d-flex flex-column gap-2">
+                    <li>💼 Package: <strong id="detail-package" class="text-light">Package</strong></li>
+                    <li>⚡ Min CGPA: <strong id="detail-cgpa" class="text-light">CGPA</strong></li>
+                    <li>📅 Event Date: <strong id="detail-date" class="text-warning">Date</strong></li>
+                </ul>
+                
+                <a id="detail-view-link" href="{% url 'job_list' %}" class="btn btn-primary btn-sm w-100 py-2">
+                    🔍 View on Job Openings
+                </a>
+            </div>
+        </div>
+
+        <!-- Preloaded Upcoming Events Sidebar -->
+        <div class="card shadow-md">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3 text-light">📋 Upcoming Events</h5>
+                <div class="d-flex flex-column gap-3">
+                    {% for event in upcoming_events %}
+                        <div class="p-2.5 rounded-3 border d-flex flex-column gap-1 calendar-sidebar-event" 
+                             style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05); cursor: pointer;"
+                             onclick="showEventDetail({
+                                 company: '{{ event.company|escapejs }}',
+                                 role: '{{ event.role|escapejs }}',
+                                 package: '{{ event.package|escapejs }}',
+                                 cgpa: '{{ event.cgpa|escapejs }}',
+                                 date: '{{ event.date|escapejs }}',
+                                 type: '{{ event.type|escapejs }}'
+                             })">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-light" style="font-size: 0.9rem;">{{ event.company }}</span>
+                                {% if event.type == 'deadline' %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning px-2 py-0.5" style="font-size: 0.68rem;">Deadline</span>
+                                {% else %}
+                                    <span class="badge bg-info bg-opacity-10 text-info px-2 py-0.5" style="font-size: 0.68rem;">Drive Date</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-muted small" style="font-size: 0.8rem;">{{ event.role }}</div>
+                            <div class="d-flex justify-content-between align-items-center mt-1" style="font-size: 0.75rem;">
+                                <span class="text-muted-light">📅 {{ event.date_obj|date:"M d, Y" }}</span>
+                                <span class="text-primary font-monospace">{{ event.package }}</span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted small text-center my-3">No upcoming events scheduled.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calendar Dynamic Logic script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const events = JSON.parse('{{ events_json|safe }}');
+        
+        let currentDate = new Date();
+        const monthYearEl = document.getElementById('calendar-month-year');
+        const gridDaysEl = document.getElementById('calendar-days-grid');
+        
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        
+        function renderCalendar(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            
+            // Set header Month Year text
+            monthYearEl.textContent = `${monthNames[month]} ${year}`;
+            
+            // Clear current days
+            gridDaysEl.innerHTML = '';
+            
+            // First day of month (0 = Sun, 1 = Mon, etc.)
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            
+            // Total days in month
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            
+            // Previous month total days (for background fill)
+            const prevTotalDays = new Date(year, month, 0).getDate();
+            
+            // Total grid spaces to render (usually 35 or 42)
+            const totalGridSpaces = Math.ceil((firstDayIndex + totalDays) / 7) * 7;
+            
+            const today = new Date();
+            
+            for (let i = 0; i < totalGridSpaces; i++) {
+                const dayCell = document.createElement('div');
+                dayCell.classList.add('calendar-day-cell');
+                
+                let dayNumber;
+                let cellDate;
+                
+                if (i < firstDayIndex) {
+                    // Previous Month filler days
+                    dayNumber = prevTotalDays - firstDayIndex + i + 1;
+                    dayCell.classList.add('filler-day');
+                    cellDate = new Date(year, month - 1, dayNumber);
+                } else if (i >= firstDayIndex + totalDays) {
+                    // Next Month filler days
+                    dayNumber = i - (firstDayIndex + totalDays) + 1;
+                    dayCell.classList.add('filler-day');
+                    cellDate = new Date(year, month + 1, dayNumber);
+                } else {
+                    // Current Month active days
+                    dayNumber = i - firstDayIndex + 1;
+                    cellDate = new Date(year, month, dayNumber);
+                    
+                    // Highlight if it is Today
+                    if (cellDate.toDateString() === today.toDateString()) {
+                        dayCell.classList.add('today-day');
+                    }
+                }
+                
+                // Add day number container
+                const dayNumSpan = document.createElement('span');
+                dayNumSpan.classList.add('day-number');
+                dayNumSpan.textContent = dayNumber;
+                dayCell.appendChild(dayNumSpan);
+                
+                // Query events on this cellDate
+                const yyyy = cellDate.getFullYear();
+                const mm = String(cellDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(cellDate.getDate()).padStart(2, '0');
+                const dateStr = `${yyyy}-${mm}-${dd}`;
+                
+                const dayEvents = events.filter(e => e.date === dateStr);
+                
+                if (dayEvents.length > 0) {
+                    const eventsContainer = document.createElement('div');
+                    eventsContainer.classList.add('cell-events-container');
+                    
+                    dayEvents.forEach(evt => {
+                        const eventDiv = document.createElement('div');
+                        eventDiv.classList.add('calendar-event-badge');
+                        
+                        if (evt.type === 'deadline') {
+                            eventDiv.classList.add('type-deadline');
+                            eventDiv.textContent = `⏰ ${evt.company}`;
+                        } else {
+                            eventDiv.classList.add('type-drive');
+                            eventDiv.textContent = `💼 ${evt.company}`;
+                        }
+                        
+                        eventDiv.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            showEventDetail(evt);
+                        });
+                        
+                        eventsContainer.appendChild(eventDiv);
+                    });
+                    
+                    dayCell.appendChild(eventsContainer);
+                }
+                
+                gridDaysEl.appendChild(dayCell);
+            }
+        }
+        
+        // Setup Navigation handlers
+        document.getElementById('prev-month-btn').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar(currentDate);
+        });
+        
+        document.getElementById('next-month-btn').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar(currentDate);
+        });
+        
+        document.getElementById('today-btn').addEventListener('click', function() {
+            currentDate = new Date();
+            renderCalendar(currentDate);
+        });
+        
+        // Initial render
+        renderCalendar(currentDate);
+    });
+
+    function showEventDetail(evt) {
+        const card = document.getElementById('event-details-card');
+        const badge = document.getElementById('detail-type-badge');
+        const company = document.getElementById('detail-company');
+        const role = document.getElementById('detail-role');
+        const packageEl = document.getElementById('detail-package');
+        const cgpaEl = document.getElementById('detail-cgpa');
+        const dateEl = document.getElementById('detail-date');
+        
+        // Show card
+        card.classList.remove('d-none');
+        
+        // Populate fields
+        company.textContent = evt.company;
+        role.textContent = evt.role;
+        packageEl.textContent = evt.package;
+        cgpaEl.textContent = `${evt.cgpa}+`;
+        
+        // Format date beautifully
+        const dObj = new Date(evt.date);
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        dateEl.textContent = dObj.toLocaleDateString('en-US', options);
+        
+        if (evt.type === 'deadline') {
+            badge.textContent = '⏰ Application Deadline';
+            badge.className = 'badge bg-warning bg-opacity-20 text-warning mb-2';
+            card.style.borderLeftColor = '#f59e0b';
+        } else {
+            badge.textContent = '📅 Recruitment Drive';
+            badge.className = 'badge bg-info bg-opacity-20 text-info mb-2';
+            card.style.borderLeftColor = '#06b6d4';
+        }
+    }
+    
+    // Wire up close button
+    document.getElementById('close-detail-btn').addEventListener('click', function() {
+        document.getElementById('event-details-card').classList.add('d-none');
+    });
+</script>
+
+<style>
+    /* Monthly Calendar CSS System integration */
+    .calendar-grid-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: 600;
+        color: var(--text-muted);
+        font-size: 0.88rem;
+    }
+    
+    .calendar-grid-body {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        min-height: 480px;
+    }
+    
+    .calendar-day-cell {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 8px;
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        min-height: 80px;
+        position: relative;
+        transition: all 0.2s ease;
+    }
+    
+    .calendar-day-cell:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+    
+    .calendar-day-cell.filler-day {
+        opacity: 0.35;
+        background: transparent;
+    }
+    
+    .calendar-day-cell.today-day {
+        border: 1.5px solid var(--accent-secondary) !important;
+        box-shadow: 0 0 10px rgba(6, 182, 212, 0.15);
+    }
+    
+    .day-number {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted-light);
+        margin-bottom: 6px;
+    }
+    
+    .cell-events-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        overflow: hidden;
+    }
+    
+    .calendar-event-badge {
+        font-size: 0.65rem;
+        font-weight: 600;
+        border-radius: 4px;
+        padding: 2.5px 5px;
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    
+    .calendar-event-badge:hover {
+        transform: scale(1.03);
+        filter: brightness(1.2);
+    }
+    
+    .calendar-event-badge.type-deadline {
+        background: rgba(245, 158, 11, 0.12);
+        color: #f59e0b;
+        border: 1.5px solid rgba(245, 158, 11, 0.25);
+    }
+    
+    .calendar-event-badge.type-drive {
+        background: rgba(6, 182, 212, 0.12);
+        color: #06b6d4;
+        border: 1.5px solid rgba(6, 182, 212, 0.25);
+    }
+    
+    /* Responsive stacking calendars on mobile viewports */
+    @media (max-width: 768px) {
+        .calendar-grid-body {
+            min-height: 380px;
+        }
+        
+        .calendar-day-cell {
+            min-height: 60px;
+            padding: 4px;
+        }
+        
+        .day-number {
+            font-size: 0.78rem;
+            margin-bottom: 2px;
+        }
+        
+        .calendar-event-badge {
+            font-size: 0.55rem;
+            padding: 1.5px 2px;
+        }
+    }
+</style>
+{% endblock %}

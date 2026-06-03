@@ -1,0 +1,340 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row mt-4 mb-4 align-items-center">
+    <div class="col-md-8">
+        <h3 class="fw-bold mb-1">Administrative Control Hub</h3>
+        <p class="text-muted mb-0">System-wide oversight of active placement drives, student profiles, and application pipelines.</p>
+    </div>
+</div>
+
+<!-- ==========================================
+     📊 CORE SYSTEM KPIS & STATS PANEL
+     ========================================== -->
+<div class="row g-4 mb-5">
+    <!-- Stat 1: Total Students -->
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100 text-center" style="border-top: 4px solid var(--accent-secondary) !important;">
+            <div class="card-body py-4">
+                <span class="text-muted small d-block mb-1 text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Total Students</span>
+                <h2 class="display-6 fw-bold mb-0 text-light mt-1">{{ total_students }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stat 2: Active Drives -->
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100 text-center" style="border-top: 4px solid var(--accent-primary) !important;">
+            <div class="card-body py-4">
+                <span class="text-muted small d-block mb-1 text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Active Drives</span>
+                <h2 class="display-6 fw-bold mb-0 text-light mt-1">{{ total_drives }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stat 3: Total Applications -->
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100 text-center" style="border-top: 4px solid #f59e0b !important;">
+            <div class="card-body py-4">
+                <span class="text-muted small d-block mb-1 text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Total Applications</span>
+                <h2 class="display-6 fw-bold mb-0 text-light mt-1">{{ total_applications }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stat 4: Placed Success / Avg CGPA -->
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100 text-center" style="border-top: 4px solid #10b981 !important;">
+            <div class="card-body py-4">
+                <span class="text-muted small d-block mb-1 text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Avg CGPA | Placed</span>
+                <h2 class="display-6 fw-bold mb-0 text-light mt-1" style="font-size: 1.6rem;">
+                    {{ avg_cgpa }} <span style="font-size: 1rem; color: var(--text-muted);">/</span> <span class="text-success">{{ placed_percentage }}%</span>
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     ⚙️ ADMINISTRATIVE NAVIGATION TABS
+     ========================================== -->
+<div class="d-flex gap-2 mb-4 flex-wrap">
+    <button class="btn btn-outline-primary px-4 py-2 active admin-tab-btn" id="btn-tab-drives" onclick="switchAdminTab('drives')">
+        💼 Drives Control
+    </button>
+    <button class="btn btn-outline-primary px-4 py-2 admin-tab-btn" id="btn-tab-students" onclick="switchAdminTab('students')">
+        🎓 Student Directory
+    </button>
+    <button class="btn btn-outline-primary px-4 py-2 admin-tab-btn" id="btn-tab-applications" onclick="switchAdminTab('applications')">
+        📝 Evaluation Hub
+    </button>
+    <button class="btn btn-outline-primary px-4 py-2 admin-tab-btn" id="btn-tab-recruiters" onclick="switchAdminTab('recruiters')">
+        🏢 Recruiter Directory
+    </button>
+</div>
+
+<!-- ==========================================
+     🏢 TAB 1: DRIVES CONTROL PANEL
+     ========================================== -->
+<div class="admin-tab-content active" id="tab-drives">
+    <div class="card shadow-lg">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Active Recruitment Drives</h5>
+            <span class="badge bg-white bg-opacity-5 border border-secondary text-muted">{{ jobs.count }} Drives Active</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle table-responsive-stack">
+                    <thead>
+                        <tr>
+                            <th>Drive Details</th>
+                            <th>Package</th>
+                            <th>Min CGPA</th>
+                            <th>Target Branches</th>
+                            <th>Date Posted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in jobs %}
+                        <tr>
+                            <td data-label="Drive Details">
+                                <strong class="text-light d-block">{{ job.job_role }}</strong>
+                                <span class="text-primary small fw-semibold">{{ job.company_name }}</span>
+                            </td>
+                            <td data-label="Package">
+                                <span class="badge badge-package">{{ job.package }}</span>
+                            </td>
+                            <td data-label="Min CGPA">
+                                <span class="text-light small fw-medium">⚡ {{ job.min_cgpa }}</span>
+                            </td>
+                            <td data-label="Target Branches">
+                                <span class="text-muted-light small text-truncate d-block" style="max-width: 250px;" title="{{ job.eligible_branches }}">
+                                    {{ job.eligible_branches }}
+                                </span>
+                            </td>
+                            <td data-label="Date Posted">
+                                <span class="text-muted small">{{ job.created_at|date:"M d, Y" }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No recruitment drives posted yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     🎓 TAB 2: STUDENT DIRECTORY
+     ========================================== -->
+<div class="admin-tab-content d-none" id="tab-students">
+    <div class="card shadow-lg">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Registered Student Database</h5>
+            <span class="badge bg-white bg-opacity-5 border border-secondary text-muted">{{ students.count }} Students Registered</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle table-responsive-stack">
+                    <thead>
+                        <tr>
+                            <th>Student Info</th>
+                            <th>Department & CGPA</th>
+                            <th>Skills</th>
+                            <th>Resume</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for std in students %}
+                        <tr>
+                            <td data-label="Student Info">
+                                <strong class="text-light d-block">{{ std.user.get_full_name }}</strong>
+                                <span class="text-muted small">Username: {{ std.user.username }} | ID: {{ std.student_id }}</span>
+                            </td>
+                            <td data-label="Department & CGPA">
+                                <span class="text-light small d-block mb-1">{{ std.branch }}</span>
+                                <span class="badge badge-eligibility-ok font-monospace" style="font-size: 0.74rem;">CGPA: {{ std.cgpa }}</span>
+                            </td>
+                            <td data-label="Skills" style="max-width: 250px;">
+                                <span class="text-muted-light small text-wrap d-block">{{ std.skills }}</span>
+                            </td>
+                            <td data-label="Resume">
+                                {% if std.resume %}
+                                    <a href="{{ std.resume.url }}" target="_blank" class="btn btn-sm btn-outline-primary px-3">
+                                        📄 View PDF
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted small italic">No Resume</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No students registered yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     📝 TAB 3: GLOBAL APPLICATIONS HUB
+     ========================================== -->
+<div class="admin-tab-content d-none" id="tab-applications">
+    <div class="card shadow-lg">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Global Application Evaluation Pipeline</h5>
+            <span class="badge bg-white bg-opacity-5 border border-secondary text-muted">{{ applications.count }} Total Pipelines</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle table-responsive-stack">
+                    <thead>
+                        <tr>
+                            <th>Candidate Details</th>
+                            <th>Academic standing</th>
+                            <th>Placement drive</th>
+                            <th>Status Badge</th>
+                            <th class="text-end">Administrative Status Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td data-label="Candidate Details">
+                                <strong class="text-light d-block">{{ app.student.user.get_full_name }}</strong>
+                                <span class="text-muted small">Roll No: {{ app.student.student_id }}</span>
+                            </td>
+                            <td data-label="Academic standing">
+                                <span class="text-light small d-block mb-1">{{ app.student.branch }}</span>
+                                <span class="badge badge-eligibility-ok" style="font-size: 0.72rem;">CGPA: {{ app.student.cgpa }}</span>
+                            </td>
+                            <td data-label="Placement drive">
+                                <strong class="text-light d-block" style="font-size: 0.95rem;">{{ app.job.job_role }}</strong>
+                                <span class="text-primary small fw-semibold">{{ app.job.company_name }}</span>
+                            </td>
+                            <td data-label="Status Badge">
+                                {% if app.status == 'Applied' %}
+                                    <span class="badge badge-status-applied">Applied</span>
+                                {% elif app.status == 'Shortlisted' %}
+                                    <span class="badge badge-status-shortlisted">Shortlisted</span>
+                                {% elif app.status == 'Selected' %}
+                                    <span class="badge badge-status-selected">Selected</span>
+                                {% else %}
+                                    <span class="badge badge-status-rejected">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td data-label="Administrative Status Action" class="text-end">
+                                <form action="{% url 'update_status' app.id %}" method="POST" class="d-flex align-items-center justify-content-end gap-2">
+                                    {% csrf_token %}
+                                    <select name="status" class="form-select form-select-sm" style="width: auto; min-width: 120px;">
+                                        <option value="Applied" {% if app.status == 'Applied' %}selected{% endif %}>Applied</option>
+                                        <option value="Shortlisted" {% if app.status == 'Shortlisted' %}selected{% endif %}>Shortlisted</option>
+                                        <option value="Selected" {% if app.status == 'Selected' %}selected{% endif %}>Selected</option>
+                                        <option value="Rejected" {% if app.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-success px-3">Save</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No student applications submitted yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     🏢 TAB 4: RECRUITER DIRECTORY
+     ========================================== -->
+<div class="admin-tab-content d-none" id="tab-recruiters">
+    <div class="card shadow-lg">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Registered Recruiter Directory</h5>
+            <span class="badge bg-white bg-opacity-5 border border-secondary text-muted">{{ recruiters.count }} Recruiters Registered</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle table-responsive-stack">
+                    <thead>
+                        <tr>
+                            <th>Recruiter Name</th>
+                            <th>Company Name</th>
+                            <th>Contact Email</th>
+                            <th>Active Drives</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rec in recruiters %}
+                        <tr>
+                            <td data-label="Recruiter Name">
+                                <strong class="text-light d-block">{{ rec.user.get_full_name|default:rec.user.username }}</strong>
+                                <span class="text-muted small">Username: {{ rec.user.username }}</span>
+                            </td>
+                            <td data-label="Company Name">
+                                <span class="badge badge-package">{{ rec.company_name }}</span>
+                            </td>
+                            <td data-label="Contact Email">
+                                <span class="text-muted-light small">{{ rec.user.email }}</span>
+                            </td>
+                            <td data-label="Active Drives">
+                                <span class="text-light small fw-medium">{{ rec.num_drives }} Posted</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No recruiters registered yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     🖥️ INTERACTIVE JAVASCRIPT TAB TOGGLER
+     ========================================== -->
+<script>
+    function switchAdminTab(tabName) {
+        // Hide all tab content panes
+        const tabPanes = document.querySelectorAll('.admin-tab-content');
+        tabPanes.forEach(pane => {
+            pane.classList.add('d-none');
+            pane.classList.remove('active');
+        });
+        
+        // Remove active highlights from all tab buttons
+        const tabButtons = document.querySelectorAll('.admin-tab-btn');
+        tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Display selected tab pane
+        const activePane = document.getElementById('tab-' + tabName);
+        if (activePane) {
+            activePane.classList.remove('d-none');
+            activePane.classList.add('active');
+        }
+        
+        // Highlight active tab button
+        const activeBtn = document.getElementById('btn-tab-' + tabName);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
+    }
+</script>
+{% endblock %}

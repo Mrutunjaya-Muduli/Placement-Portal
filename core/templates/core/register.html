@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center my-4 py-2">
+    <div class="col-md-7">
+        <div class="card shadow-lg">
+            <div class="card-body p-4 p-sm-5">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold mb-1">Create Student Account</h3>
+                    <p class="text-muted small">Fill in your academic details to get started with placement drives.</p>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information Section -->
+                    <h5 class="mb-3 fw-semibold text-primary border-bottom pb-2" style="border-color: rgba(255, 255, 255, 0.05) !important;">
+                        👤 Personal Details
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="John Doe" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="johndoe12" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" placeholder="john@university.edu" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Academic Details Section -->
+                    <h5 class="mt-4 mb-3 fw-semibold text-primary border-bottom pb-2" style="border-color: rgba(255, 255, 255, 0.05) !important;">
+                        🎓 Academic Record
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Student ID / Roll No</label>
+                            <input type="text" name="student_id" class="form-control" placeholder="ST2026099" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Branch / Department</label>
+                            <select name="branch" class="form-select" required>
+                                <option value="">Select Branch</option>
+                                <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Electronics & Communication">Electronics & Communication</option>
+                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                <option value="Civil Engineering">Civil Engineering</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Current CGPA</label>
+                            <input type="number" step="0.01" name="cgpa" class="form-control" max="10" min="0" placeholder="e.g. 8.50" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Skills (Comma separated)</label>
+                            <input type="text" name="skills" class="form-control" placeholder="e.g. Python, SQL, React" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Upload Resume (PDF format)</label>
+                        <input type="file" name="resume" class="form-control" accept=".pdf">
+                        <span class="text-muted small" style="font-size: 0.72rem;">* Uploading a PDF resume is recommended for recruiter screening.</span>
+                    </div>
+                    
+                    <div class="d-flex flex-column gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary w-100 py-2.5 fs-6">Complete Registration</button>
+                        <a href="{% url 'login' %}" class="btn btn-outline-secondary w-100 py-2.5">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

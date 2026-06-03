@@ -1,0 +1,63 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center my-4 py-2">
+    <div class="col-md-7">
+        <div class="card shadow-lg">
+            <div class="card-body p-4 p-sm-5">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold mb-1">Recruiter Registration</h3>
+                    <p class="text-muted small">Register your company profile to post placement drives and manage applications.</p>
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information Section -->
+                    <h5 class="mb-3 fw-semibold text-primary border-bottom pb-2" style="border-color: rgba(255, 255, 255, 0.05) !important;">
+                        👤 Recruiter Profile Details
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Sarah Jenkins" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="e.g. sarah_stripe" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Corporate Email Address</label>
+                            <input type="email" name="email" class="form-control" placeholder="e.g. sarah@stripe.com" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Corporate Details Section -->
+                    <h5 class="mt-4 mb-3 fw-semibold text-primary border-bottom pb-2" style="border-color: rgba(255, 255, 255, 0.05) !important;">
+                        🏢 Company Profile
+                    </h5>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Company Name</label>
+                        <input type="text" name="company_name" class="form-control" placeholder="e.g. Stripe, Google, Tesla" required>
+                        <span class="text-muted small d-block mt-1" style="font-size: 0.72rem;">* All placement drives you post will be automatically locked and labeled under this company name.</span>
+                    </div>
+                    
+                    <div class="d-flex flex-column gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary w-100 py-2.5 fs-6">Complete Recruiter Signup</button>
+                        <a href="{% url 'login' %}" class="btn btn-outline-secondary w-100 py-2.5">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

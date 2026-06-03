@@ -1,0 +1,97 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row mt-4 mb-4 align-items-center">
+    <div class="col d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold mb-1">Candidates for {{ job.job_role }}</h3>
+            <p class="text-primary mb-0 fw-semibold">{{ job.company_name }} Drives</p>
+        </div>
+        <a href="{% url 'company_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            ← Back to Recruiter Portal
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-lg">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Applicant Pool</h5>
+                <span class="badge bg-white bg-opacity-5 border text-muted">{{ applications.count }} Applications Received</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle table-responsive-stack">
+                        <thead>
+                            <tr>
+                                <th>Student Details</th>
+                                <th>Branch & CGPA</th>
+                                <th>Relevant Skills</th>
+                                <th>Uploaded Resume</th>
+                                <th>Current Status</th>
+                                <th class="text-end">Application Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in applications %}
+                            <tr>
+                                <td data-label="Student Details">
+                                    <strong class="text-light d-block">{{ app.student.user.get_full_name }}</strong>
+                                    <span class="text-muted small" style="font-size: 0.76rem;">ID: {{ app.student.student_id }}</span>
+                                </td>
+                                <td data-label="Branch & CGPA">
+                                    <span class="text-light small d-block mb-1">{{ app.student.branch }}</span>
+                                    <span class="badge badge-eligibility-ok font-monospace" style="font-size: 0.74rem;">CGPA: {{ app.student.cgpa }}</span>
+                                </td>
+                                <td data-label="Relevant Skills" style="max-width: 200px;">
+                                    <span class="text-muted-light small text-wrap d-block">{{ app.student.skills }}</span>
+                                </td>
+                                <td data-label="Uploaded Resume">
+                                    {% if app.student.resume %}
+                                        <a href="{{ app.student.resume.url }}" target="_blank" class="btn btn-sm btn-outline-primary px-3 py-1">
+                                            📄 View PDF
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted small italic">No Resume Uploaded</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Current Status">
+                                    {% if app.status == 'Applied' %}
+                                        <span class="badge badge-status-applied">Applied</span>
+                                    {% elif app.status == 'Shortlisted' %}
+                                        <span class="badge badge-status-shortlisted">Shortlisted</span>
+                                    {% elif app.status == 'Selected' %}
+                                        <span class="badge badge-status-selected">Selected</span>
+                                    {% else %}
+                                        <span class="badge badge-status-rejected">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Application Action" class="text-end">
+                                    <form action="{% url 'update_status' app.id %}" method="POST" class="d-flex align-items-center justify-content-end gap-2">
+                                        {% csrf_token %}
+                                        <select name="status" class="form-select form-select-sm" style="width: auto; min-width: 120px;">
+                                            <option value="Applied" {% if app.status == 'Applied' %}selected{% endif %}>Applied</option>
+                                            <option value="Shortlisted" {% if app.status == 'Shortlisted' %}selected{% endif %}>Shortlisted</option>
+                                            <option value="Selected" {% if app.status == 'Selected' %}selected{% endif %}>Selected</option>
+                                            <option value="Rejected" {% if app.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-success px-3">Save</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <p class="mb-0">No students have applied to this placement drive yet.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
